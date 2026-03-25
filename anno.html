@@ -35,7 +35,7 @@
                     annotations.forEach(anno => {
                         const x = valToPos(anno.x, 'x', true);
 
-                        if (x >= bbox.left && x <= bbox.right) {
+                        if (x >= bbox.left && x <= bbox.left + bbox.width) {
                             ctx.globalCompositeOperation = 'source-over'; // Force draw on top
 
                             // Line
@@ -44,13 +44,13 @@
                             ctx.lineWidth = 2;
                             if (anno.dash) ctx.setLineDash(anno.dash);
                             ctx.moveTo(x, bbox.top);
-                            ctx.lineTo(x, bbox.bottom);
+                            ctx.lineTo(x, bbox.top + bbox.height);
                             ctx.stroke();
                             ctx.setLineDash([]);
 
                             // Label
                             ctx.fillStyle = anno.color;
-                            ctx.font = "bold 12px Arial";
+                            ctx.font = "bold 24px Arial";
                             ctx.textAlign = "right";
 
                             ctx.save();
