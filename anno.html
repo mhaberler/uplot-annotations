@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <link rel="stylesheet" href="https://unpkg.com/uplot@1.6.30/dist/uPlot.min.css">
     <style>
         body { font-family: sans-serif; padding: 20px; background: #f4f4f9; }
         .chart-container { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); max-width: 840px; margin: auto; }
@@ -17,12 +16,13 @@
     <div id="legend"></div>
 </div>
 
-<script src="https://unpkg.com/uplot@1.6.30/dist/uPlot.iife.min.js"></script>
-<script>
+<script type="module">
+    import uPlot from 'uplot';
+    import 'uplot/dist/uPlot.min.css';
+
     function verticalLinesPlugin(annotations) {
         return {
             hooks: {
-                // Changed from 'draw' to 'drawSeries' to ensure it sits on top of the 'fill'
                 drawSeries: (u) => {
                     const { ctx, bbox, valToPos } = u;
                     if (!bbox) return;
@@ -36,7 +36,7 @@
                         const x = valToPos(anno.x, 'x', true);
 
                         if (x >= bbox.left && x <= bbox.left + bbox.width) {
-                            ctx.globalCompositeOperation = 'source-over'; // Force draw on top
+                            ctx.globalCompositeOperation = 'source-over';
 
                             // Line
                             ctx.beginPath();
@@ -98,7 +98,7 @@
             {
                 label: "CPU",
                 stroke: "#3498db",
-                fill: "rgba(52, 152, 219, 0.15)", // The layer that was hiding your lines
+                fill: "rgba(52, 152, 219, 0.15)",
                 width: 2,
             }
         ]
