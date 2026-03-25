@@ -1,58 +1,6 @@
 import uPlot from 'uplot';
 import 'uplot/dist/uPlot.min.css';
-
-interface Annotation {
-    x: number;
-    label: string;
-    color: string;
-    dash?: number[];
-}
-
-function verticalLinesPlugin(annotations: Annotation[]): uPlot.Plugin {
-    return {
-        hooks: {
-            drawSeries: (u: uPlot) => {
-                const { ctx, bbox, valToPos } = u;
-                if (!bbox) return;
-
-                ctx.save();
-                ctx.beginPath();
-                ctx.rect(bbox.left, bbox.top, bbox.width, bbox.height);
-                ctx.clip();
-
-                annotations.forEach(anno => {
-                    const x = valToPos(anno.x, 'x', true);
-
-                    if (x >= bbox.left && x <= bbox.left + bbox.width) {
-                        ctx.globalCompositeOperation = 'source-over';
-
-                        // Line
-                        ctx.beginPath();
-                        ctx.strokeStyle = anno.color;
-                        ctx.lineWidth = 2;
-                        if (anno.dash) ctx.setLineDash(anno.dash);
-                        ctx.moveTo(x, bbox.top);
-                        ctx.lineTo(x, bbox.top + bbox.height);
-                        ctx.stroke();
-                        ctx.setLineDash([]);
-
-                        // Label
-                        ctx.fillStyle = anno.color;
-                        ctx.font = 'bold 24px Arial';
-                        ctx.textAlign = 'right';
-
-                        ctx.save();
-                        ctx.translate(x - 5, bbox.top + 20);
-                        ctx.rotate(-Math.PI / 2);
-                        ctx.fillText(anno.label.toUpperCase(), 0, 0);
-                        ctx.restore();
-                    }
-                });
-                ctx.restore();
-            }
-        }
-    };
-}
+import { verticalLinesPlugin, type Annotation } from './verticalLinesPlugin';
 
 // Data Setup
 const now = Math.floor(Date.now() / 1000);
