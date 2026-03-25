@@ -1,6 +1,6 @@
 import uPlot from 'uplot';
 import 'uplot/dist/uPlot.min.css';
-import { verticalLinesPlugin, type Annotation } from './verticalLinesPlugin';
+import { uplotAnnotations, type Annotation } from './uplotAnnotations';
 
 // Data Setup
 const now = Math.floor(Date.now() / 1000);
@@ -9,9 +9,38 @@ const values = Array.from({ length: 100 }, () => Math.floor(Math.random() * 80) 
 const data: uPlot.AlignedData = [timestamps, values];
 
 const annotations: Annotation[] = [
-    { x: timestamps[15], label: 'Maintenance', color: '#e74c3c', dash: [5, 5] },
-    { x: timestamps[45], label: 'v2.0 Deploy', color: '#27ae60' },
-    { x: timestamps[80], label: 'Traffic Spike', color: '#f39c12' },
+    {
+        x: timestamps[22],
+        label: 'Maintenance',
+        color: '#e74c3c',
+        // dash: [5, 5],
+        lineWidth: 1,
+        // font: 'italic 11px Arial',
+
+        textAlign: 'center',
+//        rotation: Math.PI / 2,
+    },
+    {
+        x: timestamps[45],
+        label: 'v2.0 Deploy',
+        color: '#27ae60',
+        lineWidth: 3,
+        font: 'bold 13px monospace',
+                textAlign: 'right',
+        rotation: -Math.PI / 2,
+        labelOffsetX: -6,
+        labelOffsetY: 20,
+    },
+    {
+        x: timestamps[80],
+        label: 'Traffic Spike',
+        color: '#f39c12',
+        dash: [8, 3],
+        lineWidth: 2,
+        textAlign: 'right',
+        labelOffsetX: -5,
+        labelOffsetY: 30,
+    },
 ];
 
 // Build Legend
@@ -24,7 +53,7 @@ const opts: uPlot.Options = {
     title: 'Network Traffic',
     width: 800,
     height: 400,
-    plugins: [verticalLinesPlugin(annotations)],
+    plugins: [uplotAnnotations(annotations)],
     scales: {
         x: { time: true, range: (_u, _min, _max) => [timestamps[0], timestamps[99]] },
         y: { range: [0, 100] },
