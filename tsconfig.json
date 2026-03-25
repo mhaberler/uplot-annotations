@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "target": "ES2020",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "strict": true,
+    "paths": {
+      "uplot": ["./node_modules/uplot/dist/uPlot.d.ts"]
+    }
+  },
+  "include": ["*.ts"]
+}
