@@ -1,6 +1,6 @@
 import uPlot from 'uplot';
 import 'uplot/dist/uPlot.min.css';
-import { uplotAnnotations, type Annotation } from './uplotAnnotations';
+import { uplotAnnotations, uplotPointAnnotations, type Annotation, type PointAnnotation } from './uplotAnnotations';
 
 // Data Setup
 const now = Math.floor(Date.now() / 1000);
@@ -43,6 +43,12 @@ const annotations: Annotation[] = [
     },
 ];
 
+const pointAnnotations: PointAnnotation[] = [
+    { x: 30, seriesIdx: 1, label: 'Peak', color: '#8e44ad' },
+    { x: 60, seriesIdx: 1, label: 'Anomaly', color: '#c0392b' },
+    { x: 97, seriesIdx: 1, label: 'End', color: '#16a085' },
+];
+
 // Build Legend
 const legendEl = document.getElementById('legend')!;
 annotations.forEach(a => {
@@ -53,7 +59,7 @@ const opts: uPlot.Options = {
     title: 'Network Traffic',
     width: 800,
     height: 400,
-    plugins: [uplotAnnotations(annotations)],
+    plugins: [uplotAnnotations(annotations), uplotPointAnnotations(pointAnnotations)],
     scales: {
         x: { time: true, range: (_u, _min, _max) => [timestamps[0], timestamps[99]] },
         y: { range: [0, 100] },

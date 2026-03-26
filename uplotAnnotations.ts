@@ -68,6 +68,149 @@ export interface Annotation {
     labelOffsetY?: number;
 }
 
+export interface PointAnnotation {
+    /** Data array index (into data[0] and data[seriesIdx]). */
+    x: number;
+    /** Series index (1-based, matching uPlot series array). */
+    seriesIdx: number;
+    /** Text displayed inside the chip. */
+    label: string;
+    /** Chip background, arrow, and dot color. */
+    color: string;
+    /** Label text color. Default: '#fff'. */
+    textColor?: string;
+    /** Canvas font string. Default: 'bold 60px Arial'. */
+    font?: string;
+    /** Padding inside chip in canvas pixels. Default: 6. */
+    padding?: number;
+    /** Arrow length in canvas pixels. Default: 100. */
+    arrowLen?: number;
+    /** Chip border radius in canvas pixels. Default: 20. */
+    borderRadius?: number;
+}
+
+function drawRoundRect(
+    ctx: CanvasRenderingContext2D,
+    x: number, y: number, w: number, h: number, r: number,
+): void {
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.lineTo(x + w - r, y);
+    ctx.arcTo(x + w, y, x + w, y + r, r);
+    ctx.lineTo(x + w, y + h - r);
+    ctx.arcTo(x + w, y + h, x + w - r, y + h, r);
+    ctx.lineTo(x + r, y + h);
+    ctx.arcTo(x, y + h, x, y + h - r, r);
+    ctx.lineTo(x, y + r);
+    ctx.arcTo(x, y, x + r, y, r);
+    ctx.closePath();
+}
+
+export function uplotPointAnnotations(annotations: PointAnnotation[]): uPlot.Plugin {
+    return {
+        hooks: {
+            draw: (u: uPlot) => {
+                const { ctx, bbox, data } = u;
+                if (!bbox || !data) return;
+
+                const dotR = 20;
+
+                annotations.forEach(anno => {
+                    const xVal = (data[0] as number[])[anno.x];
+                    const yVal = (data[anno.seriesIdx] as number[])[anno.x];
+                    if (xVal == null || yVal == null) return;
+
+                    const cx = u.valToPos(xVal, 'x', true);
+                    const cy = u.valToPos(yVal, 'y', true);
+                    if (cx < bbox.left || cx > bbox.left + bbox.width) return;
+
+                    const padding  = anno.padding  ?? 30;
+                    const arrowLen = anno.arrowLen ?? 100;
+                    const font     = anno.font     ?? 'bold 60px Arial';
+
+                    ctx.save();
+                    ctx.font = font;
+                    const metrics = ctx.measureText(anno.label);
+                    const textW = metrics.width;
+                    const textH = metrics.actualBoundingBoxAscent + metrics.actualBoundingBoxDescent;
+                    const chipW = textW + 2 * padding;
+                    const chipH = textH + 2 * padding;
+
+                    // Determine layout
+                    const topOverflow = (cy - dotR - arrowLen - chipH) < bbox.top;
+                    let chipX: number, chipY: number;
+                    let tailX: number, tailY: number;  // arrow origin (chip edge)
+                    let headX: number, headY: number;  // arrow tip (near data point)
+
+                    if (topOverflow) {
+                        const nearRight = (cx + dotR + arrowLen + chipW) > (bbox.left + bbox.width);
+                        if (nearRight) {
+                            chipX = cx - dotR - arrowLen - chipW;
+                            chipY = cy - chipH / 2;
+                            tailX = chipX + chipW; tailY = cy;
+                            headX = cx - dotR;     headY = cy;
+                        } else {
+                            chipX = cx + dotR + arrowLen;
+                            chipY = cy - chipH / 2;
+                            tailX = chipX;     tailY = cy;
+                            headX = cx + dotR; headY = cy;
+                        }
+                    } else {
+                        const rawChipX = cx - chipW / 2;
+                        chipX = Math.max(bbox.left, Math.min(rawChipX, bbox.left + bbox.width - chipW));
+                        chipY = cy - dotR - arrowLen - chipH;
+                        tailX = chipX + chipW / 2; tailY = chipY + chipH;
+                        headX = cx;                headY = cy - dotR;
+                    }
+
+                    ctx.fillStyle   = anno.color;
+                    ctx.strokeStyle = anno.color;
+
+                    // Dot
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, dotR, 0, Math.PI * 2);
+                    ctx.fill();
+
+                    // Arrow shaft
+                    ctx.lineWidth = 7.5;
+                    ctx.beginPath();
+                    ctx.moveTo(tailX, tailY);
+                    ctx.lineTo(headX, headY);
+                    ctx.stroke();
+
+                    // Arrowhead
+                    const angle = Math.atan2(headY - tailY, headX - tailX);
+                    const hl = 40;
+                    ctx.beginPath();
+                    ctx.moveTo(headX, headY);
+                    ctx.lineTo(
+                        headX - hl * Math.cos(angle - Math.PI / 7),
+                        headY - hl * Math.sin(angle - Math.PI / 7),
+                    );
+                    ctx.lineTo(
+                        headX - hl * Math.cos(angle + Math.PI / 7),
+                        headY - hl * Math.sin(angle + Math.PI / 7),
+                    );
+                    ctx.closePath();
+                    ctx.fill();
+
+                    // Chip background
+                    drawRoundRect(ctx, chipX, chipY, chipW, chipH, anno.borderRadius ?? 20);
+                    ctx.fill();
+
+                    // Label
+                    ctx.fillStyle  = anno.textColor ?? '#fff';
+                    ctx.textAlign  = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(anno.label, chipX + chipW / 2, chipY + chipH / 2);
+
+                    ctx.restore();
+                });
+            }
+        }
+    };
+}
+
 export function uplotAnnotations(annotations: Annotation[]): uPlot.Plugin {
     return {
         hooks: {
