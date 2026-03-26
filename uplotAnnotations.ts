@@ -222,6 +222,8 @@ export function uplotAnnotations(annotations: Annotation[]): uPlot.Plugin {
                 const { ctx, bbox, valToPos } = u;
                 if (!bbox) return;
 
+                const px = uPlot.pxRatio;
+
                 ctx.save();
                 ctx.beginPath();
                 ctx.rect(bbox.left, bbox.top, bbox.width, bbox.height);
@@ -236,8 +238,8 @@ export function uplotAnnotations(annotations: Annotation[]): uPlot.Plugin {
                         // Line
                         ctx.beginPath();
                         ctx.strokeStyle = anno.color;
-                        ctx.lineWidth = anno.lineWidth ?? 2;
-                        if (anno.dash) ctx.setLineDash(anno.dash);
+                        ctx.lineWidth = (anno.lineWidth ?? 2) * px;
+                        if (anno.dash) ctx.setLineDash(anno.dash.map(v => v * px));
                         ctx.moveTo(x, bbox.top);
                         ctx.lineTo(x, bbox.top + bbox.height);
                         ctx.stroke();
@@ -245,11 +247,12 @@ export function uplotAnnotations(annotations: Annotation[]): uPlot.Plugin {
 
                         // Label
                         ctx.fillStyle = anno.color;
-                        ctx.font = anno.font ?? 'bold 24px Arial';
+                        const rawFont = anno.font ?? 'bold 24px Arial';
+                        ctx.font = rawFont.replace(/(\d+(?:\.\d+)?)px/, (_, n) => `${parseFloat(n) * px}px`);
                         ctx.textAlign = anno.textAlign ?? 'right';
 
                         ctx.save();
-                        ctx.translate(x + (anno.labelOffsetX ?? -5), bbox.top + (anno.labelOffsetY ?? 20));
+                        ctx.translate(x + (anno.labelOffsetX ?? -5) * px, bbox.top + (anno.labelOffsetY ?? 20) * px);
                         ctx.rotate(anno.rotation ?? -Math.PI / 2);
                         ctx.fillText(anno.label.toUpperCase(), 0, 0);
                         ctx.restore();

@@ -44,9 +44,9 @@ const annotations: Annotation[] = [
 ];
 
 const pointAnnotations: PointAnnotation[] = [
-    { x: 30, seriesIdx: 1, label: 'Peak', color: '#8e44ad', font: 'bold 16px Arial' },
-    { x: 60, seriesIdx: 1, label: 'Anomaly', color: '#c0392b', font: 'bold 16px Arial' },
-    { x: 97, seriesIdx: 1, label: 'End', color: '#16a085', font: 'bold 16px Arial' },
+    { x: 30, seriesIdx: 1, label: 'Peak', color: '#8e44ad', font: 'bold 10px Arial' },
+    { x: 60, seriesIdx: 1, label: 'Anomaly', color: '#c0392b', font: 'bold 10px Arial' },
+    { x: 97, seriesIdx: 1, label: 'End', color: '#16a085', font: 'bold 10px Arial' },
 ];
 
 // Build Legend
@@ -76,6 +76,45 @@ const opts: uPlot.Options = {
 };
 
 const u = new uPlot(opts, data, document.getElementById('chart')!);
+
+// ── Line annotation controls ──────────────────────────────────────────────────
+
+const lwSlider  = document.getElementById('lw-slider')  as HTMLInputElement;
+const lfsSlider = document.getElementById('lfs-slider') as HTMLInputElement;
+const rotSlider = document.getElementById('rot-slider') as HTMLInputElement;
+const loxSlider = document.getElementById('lox-slider') as HTMLInputElement;
+const loySlider = document.getElementById('loy-slider') as HTMLInputElement;
+
+function applyLineControls() {
+    const lw  = Number(lwSlider.value);
+    const fs  = Number(lfsSlider.value);
+    const deg = Number(rotSlider.value);
+    const lox = Number(loxSlider.value);
+    const loy = Number(loySlider.value);
+    const align = (document.querySelector('input[name="text-align"]:checked') as HTMLInputElement).value as CanvasTextAlign;
+
+    document.getElementById('lw-label')!.textContent  = String(lw);
+    document.getElementById('lfs-label')!.textContent = `${fs}px`;
+    document.getElementById('rot-label')!.textContent = `${deg}°`;
+    document.getElementById('lox-label')!.textContent = `${lox}px`;
+    document.getElementById('loy-label')!.textContent = `${loy}px`;
+
+    annotations.forEach(a => {
+        a.lineWidth     = lw;
+        a.font          = `bold ${fs}px Arial`;
+        a.rotation      = deg * Math.PI / 180;
+        a.labelOffsetX  = lox;
+        a.labelOffsetY  = loy;
+        a.textAlign     = align;
+    });
+    u.redraw(false);
+}
+
+[lwSlider, lfsSlider, rotSlider, loxSlider, loySlider].forEach(s => s.addEventListener('input', applyLineControls));
+document.querySelectorAll('input[name="text-align"]').forEach(r => r.addEventListener('change', applyLineControls));
+applyLineControls();
+
+// ── Point annotation controls ─────────────────────────────────────────────────
 
 const fontSlider    = document.getElementById('font-size-slider') as HTMLInputElement;
 const arrowSlider   = document.getElementById('arrow-len-slider') as HTMLInputElement;
