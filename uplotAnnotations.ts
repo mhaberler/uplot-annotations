@@ -113,7 +113,7 @@ export function uplotPointAnnotations(annotations: PointAnnotation[]): uPlot.Plu
                 const { ctx, bbox, data } = u;
                 if (!bbox || !data) return;
 
-                const dotR = 20;
+                const px = uPlot.pxRatio;
 
                 annotations.forEach(anno => {
                     const xVal = (data[0] as number[])[anno.x];
@@ -124,9 +124,13 @@ export function uplotPointAnnotations(annotations: PointAnnotation[]): uPlot.Plu
                     const cy = u.valToPos(yVal, 'y', true);
                     if (cx < bbox.left || cx > bbox.left + bbox.width) return;
 
-                    const padding  = anno.padding  ?? 30;
-                    const arrowLen = anno.arrowLen ?? 100;
-                    const font     = anno.font     ?? 'bold 60px Arial';
+                    const rawFont  = anno.font ?? 'bold 60px Arial';
+                    const font     = rawFont.replace(/(\d+(?:\.\d+)?)px/, (_, n) => `${parseFloat(n) * px}px`);
+                    const fontPx   = parseFloat(rawFont.match(/(\d+(?:\.\d+)?)px/)?.[1] ?? '60');
+
+                    const dotR     = fontPx / 3  * px;
+                    const padding  = (anno.padding  ?? fontPx / 2)   * px;
+                    const arrowLen = (anno.arrowLen ?? fontPx * 5/3) * px;
 
                     ctx.save();
                     ctx.font = font;
@@ -172,7 +176,7 @@ export function uplotPointAnnotations(annotations: PointAnnotation[]): uPlot.Plu
                     ctx.fill();
 
                     // Arrow shaft
-                    ctx.lineWidth = 7.5;
+                    ctx.lineWidth = fontPx / 8 * px;
                     ctx.beginPath();
                     ctx.moveTo(tailX, tailY);
                     ctx.lineTo(headX, headY);
@@ -180,7 +184,7 @@ export function uplotPointAnnotations(annotations: PointAnnotation[]): uPlot.Plu
 
                     // Arrowhead
                     const angle = Math.atan2(headY - tailY, headX - tailX);
-                    const hl = 40;
+                    const hl = fontPx * 2/3 * px;
                     ctx.beginPath();
                     ctx.moveTo(headX, headY);
                     ctx.lineTo(
@@ -195,7 +199,7 @@ export function uplotPointAnnotations(annotations: PointAnnotation[]): uPlot.Plu
                     ctx.fill();
 
                     // Chip background
-                    drawRoundRect(ctx, chipX, chipY, chipW, chipH, anno.borderRadius ?? 20);
+                    drawRoundRect(ctx, chipX, chipY, chipW, chipH, (anno.borderRadius ?? fontPx / 3) * px);
                     ctx.fill();
 
                     // Label

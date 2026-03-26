@@ -12,13 +12,17 @@ npm run preview   # preview the production build
 
 ## Architecture
 
-This project is a reusable uPlot plugin for vertical annotation lines, plus a demo that exercises it.
+This project is a reusable uPlot plugin module with two annotation styles, plus a demo that exercises both.
 
-**`uplotAnnotations.ts`** — the standalone, importable plugin. Exports `Annotation` (interface) and `uplotAnnotations(annotations: Annotation[]): uPlot.Plugin`. This is the module intended for use in other projects; it has no side effects and no dependency on the demo.
+**`uplotAnnotations.ts`** — the standalone, importable plugin module. Exports:
+- `Annotation` / `uplotAnnotations(annotations: Annotation[]): uPlot.Plugin` — full-height vertical lines with rotated labels, positioned by Unix timestamp. Uses the `drawSeries` hook to render on top of series fills.
+- `PointAnnotation` / `uplotPointAnnotations(annotations: PointAnnotation[]): uPlot.Plugin` — labeled chips with arrows pointing at specific data points, positioned by data array index and series index. Uses the `draw` hook. Auto-repositions chips that would overflow the top or right edge.
 
-**`anno.ts`** — the demo entry point. Imports `uplotAnnotations` and `Annotation` from the plugin module, generates synthetic time-series data, and mounts a `uPlot` instance into `anno.html`.
+Both plugins accept mutable arrays — update values and call `u.redraw(false)` to reflect changes live.
 
-**`anno.html`** — the single HTML page. Contains only layout/styles and `<script type="module" src="./anno.ts">`. Vite transpiles the TypeScript directly.
+**`anno.ts`** — the demo entry point. Imports both plugins, generates synthetic time-series data, and wires up interactive sliders for font size, arrow length, and padding.
+
+**`anno.html`** — the single HTML page. Contains layout/styles, slider controls, and `<script type="module" src="./anno.ts">`. Vite transpiles the TypeScript directly.
 
 ## uPlot types
 
@@ -28,4 +32,6 @@ uPlot ships its own declaration file at `node_modules/uplot/dist/uPlot.d.ts` but
 "paths": { "uplot": ["./node_modules/uplot/dist/uPlot.d.ts"] }
 ```
 
-The `drawSeries` hook receives `(u: uPlot, seriesIdx: number)` and fires once per series. `u.bbox` uses `left / top / width / height` — there is no `right` or `bottom` property; compute them as `bbox.left + bbox.width` and `bbox.top + bbox.height`.
+The `drawSeries` hook receives `(u: uPlot, seriesIdx: number)` and fires once per series. The `draw` hook receives `(u: uPlot)` and fires once after all series are drawn. `u.bbox` uses `left / top / width / height` — there is no `right` or `bottom` property; compute them as `bbox.left + bbox.width` and `bbox.top + bbox.height`.
+
+Canvas coordinates are in device pixels. Use `uPlot.pxRatio` to convert CSS pixels to canvas pixels for HiDPI support (as done in `uplotPointAnnotations`).

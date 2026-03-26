@@ -44,9 +44,9 @@ const annotations: Annotation[] = [
 ];
 
 const pointAnnotations: PointAnnotation[] = [
-    { x: 30, seriesIdx: 1, label: 'Peak', color: '#8e44ad' },
-    { x: 60, seriesIdx: 1, label: 'Anomaly', color: '#c0392b' },
-    { x: 97, seriesIdx: 1, label: 'End', color: '#16a085' },
+    { x: 30, seriesIdx: 1, label: 'Peak', color: '#8e44ad', font: 'bold 16px Arial' },
+    { x: 60, seriesIdx: 1, label: 'Anomaly', color: '#c0392b', font: 'bold 16px Arial' },
+    { x: 97, seriesIdx: 1, label: 'End', color: '#16a085', font: 'bold 16px Arial' },
 ];
 
 // Build Legend
@@ -75,4 +75,32 @@ const opts: uPlot.Options = {
     ],
 };
 
-new uPlot(opts, data, document.getElementById('chart')!);
+const u = new uPlot(opts, data, document.getElementById('chart')!);
+
+const fontSlider    = document.getElementById('font-size-slider') as HTMLInputElement;
+const arrowSlider   = document.getElementById('arrow-len-slider') as HTMLInputElement;
+const paddingSlider = document.getElementById('padding-slider')   as HTMLInputElement;
+const fontLabel    = document.getElementById('font-size-label')!;
+const arrowLabel   = document.getElementById('arrow-len-label')!;
+const paddingLabel = document.getElementById('padding-label')!;
+
+fontSlider.addEventListener('input', () => {
+    const px = fontSlider.value;
+    fontLabel.textContent = `${px}px`;
+    pointAnnotations.forEach(a => { a.font = `bold ${px}px Arial`; });
+    u.redraw(false);
+});
+
+arrowSlider.addEventListener('input', () => {
+    const len = Number(arrowSlider.value);
+    arrowLabel.textContent = `${len}px`;
+    pointAnnotations.forEach(a => { a.arrowLen = len; });
+    u.redraw(false);
+});
+
+paddingSlider.addEventListener('input', () => {
+    const pad = Number(paddingSlider.value);
+    paddingLabel.textContent = `${pad}px`;
+    pointAnnotations.forEach(a => { a.padding = pad; });
+    u.redraw(false);
+});
