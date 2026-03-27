@@ -5,7 +5,7 @@ Two [uPlot](https://github.com/leeoniya/uPlot) annotation plugins shipped in a s
 - **Line annotations** — full-height vertical lines with rotated labels, useful for marking events or time ranges (deploys, incidents, maintenance windows).
 - **Point annotations** — labeled chips with arrows pointing at specific data points, useful for calling out individual values (peaks, anomalies, thresholds).
 
-![image.png](/assets/image-1.png)
+![image.png](/assets/image.png)
 
 ## Usage
 
@@ -80,17 +80,17 @@ Both plugins can be used independently or together. Annotation arrays are mutabl
 
 ## Point annotation options
 
-| Property       | Type     | Default              | Description                                       |
-| -------------- | -------- | -------------------- | ------------------------------------------------- |
-| `x`            | `number` | required             | Data array index into `data[0]` / `data[seriesIdx]` |
-| `seriesIdx`    | `number` | required             | Series index (1-based, matching uPlot series)     |
-| `label`        | `string` | required             | Text displayed inside the chip                    |
-| `color`        | `string` | required             | Chip background, arrow, and dot color             |
-| `textColor`    | `string` | `'#fff'`             | Label text color                                  |
-| `font`         | `string` | `'bold 60px Arial'`  | Canvas font string                                |
-| `padding`      | `number` | `fontSize / 2`       | Padding inside chip in canvas pixels              |
-| `arrowLen`     | `number` | `fontSize * 5/3`     | Arrow length in canvas pixels                     |
-| `borderRadius` | `number` | `fontSize / 3`       | Chip corner radius in canvas pixels               |
+| Property       | Type     | Default             | Description                                         |
+| -------------- | -------- | ------------------- | --------------------------------------------------- |
+| `x`            | `number` | required            | Data array index into `data[0]` / `data[seriesIdx]` |
+| `seriesIdx`    | `number` | required            | Series index (1-based, matching uPlot series)       |
+| `label`        | `string` | required            | Text displayed inside the chip                      |
+| `color`        | `string` | required            | Chip background, arrow, and dot color               |
+| `textColor`    | `string` | `'#fff'`            | Label text color                                    |
+| `font`         | `string` | `'bold 60px Arial'` | Canvas font string                                  |
+| `padding`      | `number` | `fontSize / 2`      | Padding inside chip in canvas pixels                |
+| `arrowLen`     | `number` | `fontSize * 5/3`    | Arrow length in canvas pixels                       |
+| `borderRadius` | `number` | `fontSize / 3`      | Chip corner radius in canvas pixels                 |
 
 ## Demo
 
