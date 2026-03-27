@@ -7,6 +7,12 @@ Two [uPlot](https://github.com/leeoniya/uPlot) annotation plugins shipped in a s
 
 ![image.png](/assets/image.png)
 
+
+
+## [live demo](https://mhaberler.github.io/uplot-annotations/)
+
+
+
 ## Usage
 
 Copy `uplotAnnotations.ts` into your project and import it alongside uPlot.
