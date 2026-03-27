@@ -115,6 +115,11 @@ export function uplotPointAnnotations(annotations: PointAnnotation[]): uPlot.Plu
 
                 const px = uPlot.pxRatio;
 
+                ctx.save();
+                ctx.beginPath();
+                ctx.rect(bbox.left, bbox.top, bbox.width, bbox.height);
+                ctx.clip();
+
                 annotations.forEach(anno => {
                     const xVal = (data[0] as number[])[anno.x];
                     const yVal = (data[anno.seriesIdx] as number[])[anno.x];
@@ -210,6 +215,8 @@ export function uplotPointAnnotations(annotations: PointAnnotation[]): uPlot.Plu
 
                     ctx.restore();
                 });
+
+                ctx.restore();
             }
         }
     };
@@ -218,7 +225,8 @@ export function uplotPointAnnotations(annotations: PointAnnotation[]): uPlot.Plu
 export function uplotAnnotations(annotations: Annotation[]): uPlot.Plugin {
     return {
         hooks: {
-            drawSeries: (u: uPlot) => {
+            drawSeries: (u: uPlot, seriesIdx: number) => {
+                if (seriesIdx !== u.series.length - 1) return;
                 const { ctx, bbox, valToPos } = u;
                 if (!bbox) return;
 
